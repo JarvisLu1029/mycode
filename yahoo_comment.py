@@ -4,7 +4,7 @@ import io
 from bs4 import BeautifulSoup as bs
 import re
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+# sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 
 def search_yahoo_movie(movie_name):
@@ -31,7 +31,7 @@ def get_comment_link():
 def get_comments(url):
     response = requests.get(url)
     soup = bs(response.text, "lxml")
-    get_movie_name = soup.select_one('h1.inform_title').get_text(strip=True)
+    get_movie_name = soup.select_one('h1.inform_title').get_text(strip=True).split()[0]
     satisfaction = soup.select_one('span[data-num]')['data-num']
     user_comment_list = soup.select('ul.usercom_list li')
     get_pic = soup.select_one('div.inform_pic img')['src']
@@ -63,4 +63,5 @@ def get_comment_next_page():
     next_page = soup.select_one('a[rel="next"]')['href']
 
     return f'https://movies.yahoo.com.tw/{next_page}'
+
 
