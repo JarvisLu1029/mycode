@@ -1,10 +1,6 @@
 import requests
-import sys
-import io
 from bs4 import BeautifulSoup as bs
 import re
-
-# sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 
 def search_yahoo_movie(movie_name):
@@ -34,12 +30,10 @@ def get_comments(url):
     get_movie_name = soup.select_one('h1.inform_title').get_text(strip=True).split()[0]
     satisfaction = soup.select_one('span[data-num]')['data-num']
     user_comment_list = soup.select('ul.usercom_list li')
-    get_pic = soup.select_one('div.inform_pic img')['src']
 
     re_dict = {}
     re_dict['search_result'] = get_movie_name
     re_dict['綜合評分:'] = satisfaction
-    re_dict['pic'] = get_pic
     regex_comment = r'<span>(.*?)</span>'
     regex_score = r'score.+value="(\d)"'
     com_cnt = 1
@@ -51,11 +45,13 @@ def get_comments(url):
         com_cnt +=1
     return re_dict
 
-def get_movie_post(url):
+def get_movie_post():
+    url = search_yahoo_movie(movie_name)
     response = requests.get(url)
     soup = bs(response.text, "lxml")
+    post_url = soup.select_one('div.movie_intro_foto img')['src']
 
-
+    return post_url
 def get_comment_next_page():
     url = get_comment_link()
     response = requests.get(url)
@@ -63,5 +59,6 @@ def get_comment_next_page():
     next_page = soup.select_one('a[rel="next"]')['href']
 
     return f'https://movies.yahoo.com.tw/{next_page}'
+
 
 

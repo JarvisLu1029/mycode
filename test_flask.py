@@ -9,7 +9,7 @@ import configparser
 import random
 import yahoo_comment as mvcm
 import re
-import openai
+# import openai
 import googletrans
 
 app = Flask(__name__)
@@ -21,7 +21,7 @@ config.read('config.ini')
 line_bot_api = LineBotApi(config.get('line-bot', 'channel_access_token'))
 handler = WebhookHandler(config.get('line-bot', 'channel_secret'))
 
-openai.api_key = config.get('openai', "openai_api_key")
+# openai.api_key = config.get('openai', "openai_api_key")
 model_engine = "gpt-3.5-turbo" # ChatGPT的模型引擎
 
 
@@ -66,11 +66,12 @@ def pretty_echo(event):
             mvcm.movie_name = re.search(r'(.+)(?=@影評)|(?<=@影評)(.+)', message_text).group(0)
             comment_link = mvcm.get_comment_link()
             movie_comment = mvcm.get_comments(comment_link)
+            get_movie_post = mvcm.get_movie_post()
 
             buttons_template_message = TemplateSendMessage(
                 alt_text='Buttons Template',
                 template=ButtonsTemplate(
-                    thumbnail_image_url = f"{movie_comment['pic']}",
+                    thumbnail_image_url = f"{get_movie_post}",
                     title=f"{movie_comment['search_result']}",
                     text='請選擇下列其中一個選項',
                     actions=[
@@ -90,7 +91,6 @@ def pretty_echo(event):
                 )
             )
             del movie_comment['search_result']
-            del movie_comment['pic']
             text_message = TextSendMessage(text= "\n".join([f"{key} {value}" for key, value in movie_comment.items()]))
             line_bot_api.reply_message(
                 event.reply_token, 
@@ -103,16 +103,21 @@ def pretty_echo(event):
                 TextSendMessage(text='搜尋不到該電影影評')
                 )
 
-    elif '@t' or '@T' in message_text:
+    elif '@t' in message_text or '@T' in message_text:
         try:
             translator = googletrans.Translator()
             split = message_text.split()
             text = message_text[3:]
             if text == '?':
                 trans = str(googletrans.LANGCODES)[1:-1].replace(', ', '\n')
-            elif split[1] in googletrans.LANGCODES.values() and len(split) != 2:
+            elif split[1].lower() in googletrans.LANGCODES.values() and len(split) != 2:
                 text = message_text[6:]
-                trans = translator.translate(text, dest=split[1]).text
+                trans = translator.translate(text, dest=split[1].lower()).text
+            elif split[1].lower() not in googletrans.LANGCODES.values() and len(split) != 2:
+                line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='無法找到該語言翻譯 請參照"@t ?"')
+            )
             else:
                 trans = translator.translate(text, dest='zh-tw').text
             reply = TextSendMessage(text=trans)
@@ -122,6 +127,9 @@ def pretty_echo(event):
                 event.reply_token,
                 TextSendMessage(text='使用格式: @t <語言> <要翻譯的文字>')
             )
+    
+    else:
+        pass
     # elif message_text == '@location':
     #     line_bot_api.reply_message(
     #         event.reply_token,
