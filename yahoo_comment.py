@@ -60,5 +60,24 @@ def get_comment_next_page():
 
     return f'https://movies.yahoo.com.tw/{next_page}'
 
+# 台北票房榜的電影資訊
+def get_movie_ranks():
+    url = "https://movies.yahoo.com.tw/"
+    response = requests.get(url)
+    soup = bs(response.text, "lxml")
+    movie_ranks = soup.select('ul.ranking_list_r a')
+    movie_rank_urls = re.findall(r'href=\"(.+)\"' , f'{movie_ranks}')
 
-
+    movie_info_dict = {}
+    for movie_rank_url in movie_rank_urls:
+        movie_rank = requests.get(movie_rank_url)
+        movie_soup = bs(movie_rank.text, "lxml")
+        get_movie_name = movie_soup.select_one('div.movie_intro_info_r h1').get_text()
+        movie_image = movie_soup.select_one('div.movie_intro_foto img')['src']
+        movie_score = movie_soup.select_one('div.score_num').get_text()
+        movie_comment_url = movie_soup.select_one('a[data-ga*="網友短評"]')['href']
+        movie_info_dict.update({
+            get_movie_name: {"img": movie_image, "score": movie_score, "comment_url": movie_comment_url}
+            })
+        
+    return movie_info_dict

@@ -3,8 +3,9 @@ import os
 from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
-from linebot.models import MessageEvent, TextMessage, TextSendMessage
+from linebot.models import MessageEvent, TextMessage, TextSendMessage, ImageSendMessage
 from linebot.models import TemplateSendMessage, ButtonsTemplate, PostbackAction, MessageAction, URIAction
+from linebot.models import CarouselTemplate, CarouselColumn
 import configparser
 import random
 import yahoo_comment as mvcm
@@ -45,7 +46,6 @@ def callback():
         abort(400)
 
     return 'OK'
-
 
 @handler.add(MessageEvent, message=TextMessage)
 def pretty_echo(event):
@@ -103,6 +103,31 @@ def pretty_echo(event):
                 TextSendMessage(text='搜尋不到該電影影評')
                 )
 
+    elif message_text == '@電影':
+        ranks_dict = mvcm.get_movie_ranks()
+        column_list = []
+        for key, value in ranks_dict.items():
+            column_list.append(
+                CarouselColumn(
+                    thumbnail_image_url= value['img'],
+                    title= key,
+                    text= f"評分: {value['score']}",
+                    actions=[
+                        URIAction(
+                            label='影評網址',
+                            uri = value['comment_url']
+                        )
+                    ]
+                ),
+            )
+
+        line_bot_api.reply_message(event.reply_token, TemplateSendMessage(
+        alt_text='CarouselTemplate',
+        template=CarouselTemplate(
+            columns= column_list
+        )
+    )) 
+
     elif '@t' in message_text or '@T' in message_text:
         try:
             translator = googletrans.Translator()
@@ -127,7 +152,19 @@ def pretty_echo(event):
                 event.reply_token,
                 TextSendMessage(text='使用格式: @t <語言> <要翻譯的文字>')
             )
-    
+
+    elif '@圖片' in message_text or '@圖庫' in message_text:
+        with open('data.txt', 'r') as f:
+            images_data = f.readlines()
+            # 移除每一行的換行符
+            images_data = [line.strip() for line in images_data]
+
+        imageUrl = random.choice(images_data)
+        line_bot_api.reply_message(
+            event.reply_token,
+            ImageSendMessage(original_content_url=imageUrl, preview_image_url=imageUrl)
+            )
+
     else:
         pass
     # elif message_text == '@location':
@@ -135,6 +172,7 @@ def pretty_echo(event):
     #         event.reply_token,
     #         TextSendMessage(text='This is keyword for @location!')
     #     )
+    # line_bot_api.reply_message(event.reply_token,ImageSendMessage(original_content_url='圖片網址', preview_image_url='圖片網址'))
 #     else:
 #         response_text = generate_response(message_text) # 使用ChatGPT生成回覆消息
         
