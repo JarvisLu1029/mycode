@@ -4,3 +4,5 @@ requests
 uwsgi
 pymysql
 bs4
+lxml
+googletrans
