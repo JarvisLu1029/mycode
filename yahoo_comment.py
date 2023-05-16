@@ -15,14 +15,21 @@ def search_yahoo_movie(movie_name):
     return movie_info
 
 def get_comment_link():
+    info_dict = {}
     url = search_yahoo_movie(movie_name)
     response = requests.get(url)
     soup = bs(response.text, "lxml")
     # <a href="https://movies.yahoo.com.tw/movieinfo_review.html/id=14653" 
     # class="gabtn" data-ga="['電影頁tab','電影頁tab_網友短評','']">網友短評</a>
     link = soup.select_one('a[data-ga*="網友短評"]')['href']
-    
-    return link
+    post_url = soup.select_one('div.movie_intro_foto img')['src']
+    get_movie_name = soup.select_one('div.movie_intro_info_r h1').get_text()
+    movie_name_en = soup.select_one('div.movie_intro_info_r h3').get_text()
+    info_dict.update({
+        'link':link, 'post_url':post_url, 'movie_name':get_movie_name, 'movie_name_en':movie_name_en
+    })
+
+    return info_dict
 
 def get_comments(url):
     response = requests.get(url)
@@ -45,13 +52,6 @@ def get_comments(url):
         com_cnt +=1
     return re_dict
 
-def get_movie_post():
-    url = search_yahoo_movie(movie_name)
-    response = requests.get(url)
-    soup = bs(response.text, "lxml")
-    post_url = soup.select_one('div.movie_intro_foto img')['src']
-
-    return post_url
 def get_comment_next_page():
     url = get_comment_link()
     response = requests.get(url)

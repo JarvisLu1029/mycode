@@ -64,15 +64,16 @@ def pretty_echo(event):
     elif '@影評' in message_text:
         try:
             mvcm.movie_name = re.search(r'(.+)(?=@影評)|(?<=@影評)(.+)', message_text).group(0)
-            comment_link = mvcm.get_comment_link()
+            info_dict = mvcm.get_comment_link()
+            comment_link = info_dict['link']
             movie_comment = mvcm.get_comments(comment_link)
-            get_movie_post = mvcm.get_movie_post()
+            get_movie_post = info_dict['post_url']
 
             buttons_template_message = TemplateSendMessage(
                 alt_text='Buttons Template',
                 template=ButtonsTemplate(
                     thumbnail_image_url = f"{get_movie_post}",
-                    title=f"{movie_comment['search_result']}",
+                    title=f"{info_dict['movie_name']}\n綜合評分: {movie_comment['綜合評分:']}",
                     text='請選擇下列其中一個選項',
                     actions=[
                         URIAction(
@@ -111,7 +112,7 @@ def pretty_echo(event):
                 CarouselColumn(
                     thumbnail_image_url= value['img'],
                     title= key,
-                    text= f"評分: {value['score']}",
+                    text= f"綜合評分: {value['score']}",
                     actions=[
                         URIAction(
                             label='影評網址',
