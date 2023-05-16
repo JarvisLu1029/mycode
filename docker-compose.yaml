@@ -13,24 +13,56 @@ services:
   #     networks:
   #       customnetwork:
   #         ipv4_address: 172.10.0.8
+  ngrok:
+    image: wernight/ngrok
+    depends_on:
+      - web
+    command: ngrok http http://172.8.0.9:5000 --authtoken= --bind-tls=true
+    ports:
+      - 80:80
+      - 4040:4040
+    networks:
+        customnetwork:
+          ipv4_address: 172.8.0.8
+  db:
+      image: mysql:latest
+      container_name: mysql_server
+      # command: --default-authentication-plugin=mysql_native_password --mysqlx=0
+      # hostname: mysql
+      environment:
+         MYSQL_ROOT_PASSWORD: "bdse28root"
+         MYSQL_DATABASE: "linebot"
+         MYSQL_USER: "bdse28"
+         MYSQL_PASSWORD: "bdse280001"
+      ports:
+         - 3308:3306
+      volumes:
+         #- /share/bdse_stock/mysql_data:/docker-entrypoint-initdb.d
+         # 連結SQL儲存data的資料夾
+         - ./sql_data:/var/lib/mysql
+      networks:
+        customnetwork:
+          ipv4_address: 172.8.0.6
   web:
       build:
         context: .
         dockerfile: Dockerfile
       container_name: pyflask_env
       volumes:
-        - /home/jarvislu/linebot/:/home/linebot/
+        - /home/jarvis/glis/linebot/:/home/linebot/
       networks:
         customnetwork:
-          ipv4_address: 172.10.0.9
-      ports:
-        - 80:5000
+          ipv4_address: 172.8.0.9
+      depends_on:
+        - db
+      expose:
+        - 5000
       working_dir: /home/linebot/
-      command: uwsgi --ini app.ini
+      command: ./wait-for-it.sh db:3306 --timeout=120 --strict -- uwsgi --ini app.ini
 
 networks:
   customnetwork:
     ipam:
       config:
-        - subnet: 172.10.0.0/16 
+        - subnet: 172.8.0.0/16 
 
