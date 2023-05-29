@@ -20,7 +20,7 @@ def get_twitter_image():
     my_options = webdriver.ChromeOptions()
     my_options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36')
     
-    token = "bd3f6f2d2d1d9aadf1ddb3d7b4f5c863cb2cce41" 
+    token = "token" 
     # 創建 cookie 對象
     cookie = {
     "name": "auth_token",  # 替換成您要設置的 cookie 名稱
