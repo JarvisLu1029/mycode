@@ -10,8 +10,8 @@ import argparse
 # ACCESS_TOKEN = config.get('line-bot', 'channel_access_token')
 # user_id = config.get('line-bot', 'channel_user_id')
 
-ACCESS_TOKEN = '86ZekFJ8hKT6IvUA/LgwtpKrz7CRIp3u9y5MsCdsVtB9+erlWTkYOA2VVeuBfuuxpkZnCT06V7pw4Eak4+8kSXpSbYbr9PMviLRnqyoDEnyV6kJmpnhPfNfOIJW6xK1Yo7NQ7Ef671cY9T7mctkwlQdB04t89/1O/w1cDnyilFU='
-user_id = 'C9f97562e62b69f34038b62073a9ffd80'
+ACCESS_TOKEN = 'token'
+user_id = 'id'
 
 def textLineBot(talk_text):
     API_URL = 'https://api.line.me/v2/bot/message/push'
