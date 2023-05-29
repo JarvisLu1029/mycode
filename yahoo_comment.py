@@ -24,6 +24,8 @@ def get_comment_link():
     link = soup.select_one('a[data-ga*="網友短評"]')['href']
     post_url = soup.select_one('div.movie_intro_foto img')['src']
     get_movie_name = soup.select_one('div.movie_intro_info_r h1').get_text()
+    # 有些電影名稱會有換行符號或大量空格 需將多個連續空格轉為一個空格
+    get_movie_name = re.sub(r'\s+', ' ', get_movie_name)
     movie_name_en = soup.select_one('div.movie_intro_info_r h3').get_text()
     info_dict.update({
         'link':link, 'post_url':post_url, 'movie_name':get_movie_name, 'movie_name_en':movie_name_en
@@ -50,6 +52,9 @@ def get_comments(url):
         dict2 = {f'{com_cnt}. {(int(score)*"★ ")}': f'{user_comment}'}
         re_dict.update(dict2)
         com_cnt +=1
+        # 僅回傳前五則，怕訊息太長不好看
+        if com_cnt > 5:
+            break
     return re_dict
 
 def get_comment_next_page():
