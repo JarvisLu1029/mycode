@@ -32,5 +32,5 @@ class Car:
 # if __name__ == '__main__':
 
     # 測試模組
-    print(pow(7, 2))
+    print(f'In myModule.py :{pow(7, 2)}')
 
