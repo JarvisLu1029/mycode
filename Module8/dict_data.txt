@@ -1,0 +1,1 @@
+{'apple': {'price': 100, 'quantity': 50, 'color': ['greem', 'red']}, 'orange': {'price': 50, 'quantity': 30, 'color': 'orange'}, 'tomato': {'price': 150, 'quantity': 70, 'color': 'red'}}
