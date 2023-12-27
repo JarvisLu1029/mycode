@@ -5,18 +5,22 @@ from webdriver_manager.chrome import ChromeDriverManager
 import queue
 import time
 
-# 創建一個 Options 物件
-chrome_options = Options()
 
-chrome_options.add_argument("--start-maximized") # Chrome 瀏覽器在啟動時最大化視窗
-chrome_options.add_argument("--incognito") # 無痕模式
-chrome_options.add_argument("--disable-popup-blocking") # 停用 Chrome 的彈窗阻擋功能。
-chrome_options.add_argument('--headless')
+def create_driver():
+    # 創建一個 Options 物件
+    chrome_options = Options()
 
-driver = webdriver.Chrome(ChromeDriverManager("120.0.6099.109").install(), options=chrome_options)
+    chrome_options.add_argument("--start-maximized") # Chrome 瀏覽器在啟動時最大化視窗
+    chrome_options.add_argument("--incognito") # 無痕模式
+    chrome_options.add_argument("--disable-popup-blocking") # 停用 Chrome 的彈窗阻擋功能。
+    chrome_options.add_argument('--headless')
+
+    driver = webdriver.Chrome(ChromeDriverManager("120.0.6099.109").install(), options=chrome_options)
+    return driver
 
 # Momo
 def momo_data(queue, commodity):
+    driver = create_driver()
     driver.get(f'https://www.momoshop.com.tw/search/searchShop.jsp?keyword={commodity}')
 
     commodity_names = driver.find_elements(By.XPATH, "//div[@class='prdNameTitle']/h3[@class='prdName']")
@@ -39,6 +43,7 @@ def momo_data(queue, commodity):
     return info_dict
 
 def carrefour_data(queue, commodity):
+    driver = create_driver()
     driver.get(f'https://online.carrefour.com.tw/zh/search/?q={commodity}')
     
     commodity_names = driver.find_elements(By.XPATH, "//div[@class='commodity-desc']/div/a")
@@ -53,6 +58,7 @@ def carrefour_data(queue, commodity):
             'commodity_image': commodity_images[i].get_attribute('src'),
             'commodity_value': value_elements[i].text,
             'commodity_link': commodity_links[i].get_attribute('href'),
+            'store': 'Carrefour'
             }
     
     queue.put(info_dict)
@@ -60,6 +66,7 @@ def carrefour_data(queue, commodity):
     return info_dict
 
 def pchome_data(queue, commodity):
+    driver = create_driver()
     driver.get(f'https://ecshweb.pchome.com.tw/search/v3.3/?q={commodity}')
 
     scroll_height(driver)
@@ -83,6 +90,7 @@ def pchome_data(queue, commodity):
     return info_dict
 
 def pxmart_data(queue, commodity):
+    driver = create_driver()
     driver.get(f'https://www.pxmart.com.tw/#/search-result/{commodity}')
     
     commodity_names = driver.find_elements(By.XPATH, "//p[@class='line-clamp-3']")
@@ -97,6 +105,7 @@ def pxmart_data(queue, commodity):
             'commodity_image': commodity_images[i].get_attribute('src'),
             'commodity_value': value_elements[i].text,
             'commodity_link': commodity_links[i].get_attribute('href'),
+            'store': 'Pxmart'
             }
     
     queue.put(info_dict)
