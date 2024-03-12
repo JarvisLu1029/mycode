@@ -1,8 +1,0 @@
-abc0168.c
-abc0104.c
-abc0193.c
-abc0260.c
-abc0285.c
-abc0132.c
-abc0294.c
-abc0168.c
