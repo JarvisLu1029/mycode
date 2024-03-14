@@ -13,5 +13,5 @@ while True:
         print('請輸入更大的數')
     elif user_input > num:
         print('請輸入更小的數')
-    else:
-        print('輸入錯誤請重新輸入')
+    # else:
+    #     print('輸入錯誤請重新輸入')
